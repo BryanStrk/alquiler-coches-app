@@ -1,0 +1,46 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse / NetBeans (por si en el futuro)
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Variables de entorno (CRÍTICO — nunca subir)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Compiled output ignorable
+*.class
+
+# Carpeta Claude Code (no compartir contexto)
+.claude/
+
+# Otros
+HELP.md

@@ -19,7 +19,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:5173");
+    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:5174");
     private static final List<String> ALLOWED_METHODS =
             List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH");
     private static final List<String> ALLOWED_HEADERS =

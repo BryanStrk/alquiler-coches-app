@@ -1,5 +1,6 @@
 package com.alquiler.coches.exception;
 
+import com.alquiler.coches.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,10 +60,24 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "No tienes permisos para acceder a este recurso", request);
     }
 
-    @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<ErrorResponse> handleUnsupported(UnsupportedOperationException ex,
-                                                           HttpServletRequest request) {
-        return build(HttpStatus.NOT_IMPLEMENTED, ex.getMessage(), request);
+
+    @ExceptionHandler(MediaStorageException.class)
+    public ResponseEntity<ErrorResponse> handleMediaStorage(
+            MediaStorageException ex, HttpServletRequest request) {
+
+        // Campos del ErrorResponse: cuándo (timestamp), código numérico (status),
+        // etiqueta corta (error), detalle legible (message del ex), en qué ruta
+        // ocurrió (path) y, al final, null = sin errores de validación de campos
+        // (eso solo aplica a los 400 de @Valid, no a este caso).
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Media Storage Error",
+                ex.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

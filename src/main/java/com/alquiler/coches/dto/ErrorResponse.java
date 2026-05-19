@@ -1,4 +1,4 @@
-package com.alquiler.coches.exception;
+package com.alquiler.coches.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jspecify.annotations.Nullable;

@@ -14,9 +14,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,18 +59,48 @@ public class CocheController {
         return ResponseEntity.ok(cocheService.findById(id));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Crear coche", description = "Requiere rol ADMIN")
+    @Operation(summary = "Crear coche con imágenes",
+            description = "Requiere rol ADMIN. multipart/form-data: parte 'coche' "
+                    + "(JSON CocheRequestDTO) y parte opcional 'imagenes' (0..N ficheros). "
+                    + "Las imágenes se suben a Cloudinary antes de persistir; si la "
+                    + "persistencia falla se hace rollback de las imágenes subidas.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Coche creado"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos"),
             @ApiResponse(responseCode = "401", description = "No autenticado"),
-            @ApiResponse(responseCode = "403", description = "Sin permisos")
+            @ApiResponse(responseCode = "403", description = "Sin permisos"),
+            @ApiResponse(responseCode = "500", description = "Error subiendo a Cloudinary")
     })
-    public ResponseEntity<CocheResponseDTO> create(@Valid @RequestBody CocheRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(cocheService.create(request));
+    public ResponseEntity<CocheResponseDTO> create(
+            @RequestPart("coche") @Valid CocheRequestDTO request,
+            @RequestPart(value = "imagenes", required = false)
+            @Nullable List<MultipartFile> imagenes) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(cocheService.create(request, imagenes));
+    }
+
+    @PostMapping(value = "/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Añadir imágenes a un coche existente",
+            description = "Requiere rol ADMIN. Sube las imágenes a Cloudinary y las "
+                    + "AÑADE (no reemplaza) a las del coche. Rollback de las recién "
+                    + "subidas si la actualización falla.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Imágenes añadidas"),
+            @ApiResponse(responseCode = "400", description = "Petición inválida"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos"),
+            @ApiResponse(responseCode = "404", description = "Coche no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error subiendo a Cloudinary")
+    })
+    public ResponseEntity<CocheResponseDTO> addImages(
+            @PathVariable Long id,
+            @RequestPart("imagenes") List<MultipartFile> imagenes) {
+        return ResponseEntity.ok(cocheService.addImages(id, imagenes));
     }
 
     @PutMapping("/{id}")

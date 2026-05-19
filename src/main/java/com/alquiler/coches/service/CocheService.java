@@ -5,6 +5,7 @@ import com.alquiler.coches.dto.CocheResponseDTO;
 import com.alquiler.coches.entity.EstadoCoche;
 import com.alquiler.coches.entity.TipoCombustible;
 import org.jspecify.annotations.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,7 +22,9 @@ public interface CocheService {
 
     List<CocheResponseDTO> findDisponibles();
 
-    CocheResponseDTO create(CocheRequestDTO request);
+    CocheResponseDTO create(CocheRequestDTO request, @Nullable List<MultipartFile> imagenes);
+
+    CocheResponseDTO addImages(Long id, List<MultipartFile> imagenes);
 
     CocheResponseDTO update(Long id, CocheRequestDTO request);
 

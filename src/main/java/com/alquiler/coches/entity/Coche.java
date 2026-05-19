@@ -65,11 +65,26 @@ public class Coche {
     @Column(columnDefinition = "TEXT")
     private @Nullable String descripcion;
 
+    /**
+     * URLs de las imágenes del coche. Son los {@code secure_url} (https) que
+     * devuelve Cloudinary al subir; este campo NO se manipula a mano desde el
+     * cliente: lo rellena la capa de servicio a partir de {@code CloudinaryService}.
+     *
+     * <p>{@code @ElementCollection} mapea una colección de tipos básicos (aquí
+     * {@code String}) en una TABLA APARTE, sin necesidad de crear una entidad
+     * propia para cada URL. Hibernate crea la tabla {@code coche_imagenes} con
+     * una FK {@code coche_id} hacia {@code coches}: una fila por imagen.</p>
+     */
     // TODO: estos URLs serán poblados desde el frontend cuando Cloudinary esté
     // implementado en MediaController/CloudinaryService (actualmente lanza
     // UnsupportedOperationException). Por ahora se rellenan con placeholders en el seed.
+    // fetch=EAGER: traemos las URLs junto con el coche (se necesitan casi siempre
+    // al mostrarlo y son pocas) en vez de en una consulta extra perezosa.
     @ElementCollection(fetch = FetchType.EAGER)
+    // @CollectionTable nombra esa tabla secundaria; @JoinColumn define la FK.
     @CollectionTable(name = "coche_imagenes", joinColumns = @JoinColumn(name = "coche_id"))
+    // @Column: la columna que guarda cada URL; length=500 porque las URLs de
+    // Cloudinary (con carpeta + transformaciones) son largas.
     @Column(name = "image_url", length = 500)
     @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
